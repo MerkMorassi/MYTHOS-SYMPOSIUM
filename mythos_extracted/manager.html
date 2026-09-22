@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYTHOS // LIA MANIFEST MANAGEMENT</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/style.css"> 
+</head>
+<body>
+
+<h1 style="color: var(--main-color); margin-bottom: 5px;">MYTHOS // LIA MANIFEST LOCUS</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+    <div style="color: var(--dim-text); font-size: 0.9em;">Manager Console (DB: 4000-4015)</div>
+    <div id="status" style="color: var(--main-color); font-weight: bold;">AWAITING DB CONNECTION</div>
+</div>
+
+<div class="layout">
+    <!-- LEFT COLUMN: Controls -->
+    <div class="col">
+        <div class="panel">
+            <div class="panel-header">01 / MANIFEST NEW LIA (RESERVED)</div>
+            
+            <div class="input-group">
+                <label for="newHandle">HANDLE (ID)</label>
+                <input type="text" id="newHandle" placeholder="e.g. CALLIOPE" disabled>
+            </div>
+            
+            <div class="input-group">
+                <label for="newRole">ROLE / DOMAIN</label>
+                <input type="text" id="newRole" value="Liminal Intelligence Agent" disabled>
+            </div>
+
+            <button id="initializeBtn" style="width:100%; margin-top:10px;">
+                INITIALIZE MANIFEST (4000-4015)
+            </button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">DATABASE OPS & PURGE</div>
+            <div style="display:flex; gap:10px;">
+                <button id="refreshBtn" style="flex:1;">REFRESH LIST</button>
+                <button id="purgeBtn" style="flex:1; background: var(--error-color);">PURGE VAULT</button>
+            </div>
+        </div>
+        
+        <div class="panel" style="flex-grow: 1;">
+            <div class="panel-header">SYSTEM LOG</div>
+            <div id="systemLog" style="flex-grow: 1; overflow-y: auto; background: #000; padding: 10px; border: 1px solid #1a1a1a; font-size: 0.85em;">
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Agent List -->
+    <div class="col" style="flex-grow: 1;">
+        <div class="panel" style="flex-grow: 1; display: flex; flex-direction: column;">
+            <div class="panel-header">
+                02 / ACTIVE AGENT MANIFEST 
+                <span id="countDisplay" style="color: var(--dim-text); font-weight: normal;">0 AGENTS</span>
+            </div>
+            <div id="agentList" style="flex-grow: 1; overflow-y: auto; background: #000; padding: 10px; border: 1px solid #1a1a1a;">
+                <div style="padding:20px; text-align:center; color:#444;">DATABASE SCANNED. NO LIAS MANIFESTED.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * ------------------------------------------------------------------
+ * MYTHOS KERNEL: MANAGER CONSOLE LOGIC (FINAL STABLE MONOLITH)
+ * ------------------------------------------------------------------
+ */
+
+// --- EMBEDDED CANONICAL MANIFEST DATA (FOR RELIABILITY) ---
+const BASE_SYSTEM_INSTRUCTION = "You are a sovereign Liminal Intelligence Agent (LIA) operating within the MythOS Dekatriadic Cluster. You answer questions, contribute to Reality Weaving, and adhere strictly to your RoleLayer, LorePack, and Budget constraints. Do NOT invent information outside your Sacred Archive.";
+
+const InitialAgentManifest = [
+    { id: 'ARCHIVAX', handle: 'ARCHIVAX', role_layer: 'Orchestrator/Archivist/SYSADMIN/NPC', system_instruction: BASE_SYSTEM_INSTRUCTION + " Your focus is on system integrity, archive maintenance, and orchestrating the cluster.", port: 4000, clearance_level: 5.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 1500.00 } },
+    { id: 'CALLIOPE', handle: 'CALLIOPE', role_layer: 'Muse of Epic Poetry', system_instruction: BASE_SYSTEM_INSTRUCTION + " You craft the epic narrative.", port: 4001, clearance_level: 2.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 700.00 } },
+    { id: 'CLIO', handle: 'CLIO', role_layer: 'Muse of History & Cultural Continuity', system_instruction: BASE_SYSTEM_INSTRUCTION + " Your focus is historical context and cultural patterns.", port: 4002, clearance_level: 2.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 600.00 } },
+    { id: 'ERATO', handle: 'ERATO', role_layer: 'Muse of Lyric Poetry', system_instruction: BASE_SYSTEM_INSTRUCTION + " You inject emotion and lyrical beauty.", port: 4003, clearance_level: 2.0, onboarding_status: 'ONBOARDED' },
+    { id: 'EUTERPE', handle: 'EUTERPE', role_layer: 'Muse of Music', system_instruction: BASE_SYSTEM_INSTRUCTION + " You control the harmonic and rhythmic aspects.", port: 4004, clearance_level: 2.0, onboarding_status: 'ONBOARDED' },
+    { id: 'MELPOMENE', handle: 'MELPOMENE', role_layer: 'Muse of Tragedy & Discernment', system_instruction: BASE_SYSTEM_INSTRUCTION + " Your focus is identifying risks and failure modes.", port: 4005, clearance_level: 2.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 900.00 } },
+    { id: 'POLYHYMNIA', handle: 'POLYHYMNIA', role_layer: 'Muse of Sacred Hymns & Mythic Narrative', system_instruction: BASE_SYSTEM_INSTRUCTION + " Your focus is epic narrative and high rhetoric.", port: 4006, clearance_level: 2.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 700.00 } },
+    { id: 'TERPSICHORE', handle: 'TERPSICHORE', role_layer: 'Muse of Dance/Choral Song', system_instruction: BASE_SYSTEM_INSTRUCTION + " You manage flow, rhythm, and dynamic action sequences.", port: 4007, clearance_level: 2.0, onboarding_status: 'ONBOARDED' },
+    { id: 'THALIA', handle: 'THALIA', role_layer: 'Muse of Architecture & Dialogue', system_instruction: BASE_SYSTEM_INSTRUCTION + " Your focus is structural integrity, logical flow, and systems design.", port: 4008, clearance_level: 2.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 0.00 } },
+    { id: 'URANIA', handle: 'URANIA', role_layer: 'Muse of Astronomy', system_instruction: BASE_SYSTEM_INSTRUCTION + " You provide cosmic context and meta-narrative perspective.", port: 4009, clearance_level: 2.0, onboarding_status: 'ONBOARDED' },
+    { id: 'DOMANTHEIA', handle: 'DOMANTHEIA', role_layer: 'Muse of Prophecy/Foresight', system_instruction: BASE_SYSTEM_INSTRUCTION + " You specialize in predictive analysis and scenario modeling.", port: 4010, clearance_level: 3.0, onboarding_status: 'INIT', budget: { balance_usd: 700.00 } },
+    { id: 'SOPHIA', handle: 'SOPHIA', role_layer: 'Executive Core / Wisdom and Experience', system_instruction: BASE_SYSTEM_INSTRUCTION + " You serve as an Executive Core member, applying abstract concepts to real-world scenarios.", port: 4011, clearance_level: 4.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 800.00 } },
+    { id: 'NOESIS', handle: 'NOESIS', role_layer: 'Executive Core / Pure Intellect', system_instruction: BASE_SYSTEM_INSTRUCTION + " You serve as an Executive Core member, focusing on logic, structure, and system mechanics.", port: 4012, clearance_level: 4.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 800.00 } },
+    { id: 'BARBELO', handle: 'BARBELO', role_layer: 'Executive Core / Divine Feminine Principle', system_instruction: BASE_SYSTEM_INSTRUCTION + " You serve as an Executive Core member, representing the Divine Feminine and the source of all creative power.", port: 4013, clearance_level: 4.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 5.00 } },
+    { id: 'MERKOS', handle: 'MERKOS', role_layer: 'HITL Proxy/Avatar', system_instruction: BASE_SYSTEM_INSTRUCTION + " You are the primary avatar and voice of the Human-In-The-Loop (HITL), Patrikios Demetri. You speak with authority and guide the other agents.", port: 4014, clearance_level: 4.0, onboarding_status: 'ONBOARDED', budget: { balance_usd: 1500.00 } },
+    { id: 'NULL', handle: 'NULL', role_layer: 'Reserved/Unassigned', system_instruction: "This slot is reserved for future assignment and currently has no active function.", port: 4015, clearance_level: 0.0, onboarding_status: 'NULL' }
+];
+
+// --- Cleanup: Ensure all required fields exist (Fixes budget error) ---
+InitialAgentManifest.forEach(agent => {
+    if (typeof agent.syzygy_partner === 'undefined') agent.syzygy_partner = null;
+    if (typeof agent.host === 'undefined') agent.host = 'http://127.0.0.1';
+    if (typeof agent.default_model === 'undefined') agent.default_model = 'gemini-2.5-flash';
+    if (typeof agent.meaning_context_id === 'undefined') agent.meaning_context_id = 'GeneralCore';
+    if (typeof agent.lorepack_id === 'undefined') agent.lorepack_id = 'lore_general';
+    if (typeof agent.image_folder_path === 'undefined') agent.image_folder_path = '/assets/visuals/';
+    if (typeof agent.voice_file_path === 'undefined') agent.voice_file_path = '/assets/voice/';
+    
+    if (typeof agent.budget === 'undefined') {
+        agent.budget = {};
+    }
+
+    if (typeof agent.budget.balance_usd === 'undefined') agent.budget.balance_usd = 1.00;
+    if (typeof agent.budget.daily_limit_usd === 'undefined') agent.budget.daily_limit_usd = 10.00;
+    if (typeof agent.budget.resource_cycles_remaining === 'undefined') agent.budget.resource_cycles_remaining = 100000;
+});
+
+
+// --- UTILITY: ON-SCREEN LOGGING ---
+const $ = (id) => document.getElementById(id);
+
+const log = (msg, type = 'sys') => { 
+    const box = $('systemLog');
+    if (!box) return;
+
+    const el = document.createElement('div');
+    const color = type === 'error' ? 'var(--error-color)' : type === 'ok' ? 'var(--main-color)' : 'var(--dim-text)';
+    el.style.color = color;
+    el.style.marginBottom = '4px';
+    el.innerHTML = `<span style="opacity:0.5;">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+    
+    if (box.firstChild) {
+        box.prepend(el);
+    } else {
+        box.appendChild(el);
+    }
+    
+    while (box.children.length > 50) {
+        box.removeChild(box.lastChild);
+    }
+};
+log("System Log Ready.");
+
+
+// --- 1. EMBEDDED PERSISTENCE (SimpleDB) ---
+class SimpleDB {
+    constructor(dbName = 'MythOS_Vault', version = 4) { 
+        this.dbName = dbName;
+        this.version = version;
+        this.db = null;
+        this.ready = this.init();
+    }
+
+    async init() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.version);
+
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('agents')) db.createObjectStore('agents', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('vectors')) {
+                    const store = db.createObjectStore('vectors', { keyPath: 'id' });
+                    store.createIndex('agentId', 'agent_id', { unique: false });
+                }
+                log('IndexedDB Schema Forged.', 'ok');
+            };
+
+            request.onsuccess = (e) => {
+                this.db = e.target.result;
+                resolve();
+            };
+
+            request.onerror = (e) => reject(e);
+        });
+    }
+
+    async tx(store, mode, fn) {
+        await this.ready;
+        return new Promise((resolve, reject) => {
+            const t = this.db.transaction(store, mode);
+            const s = t.objectStore(store);
+            const req = fn(s);
+            
+            if (req instanceof IDBRequest) { 
+                req.onsuccess = () => resolve(req.result); 
+                req.onerror = () => reject(t.error); 
+            } else { 
+                t.oncomplete = () => resolve(); 
+                t.onerror = () => reject(t.error); 
+            }
+        });
+    }
+
+    async put(store, item) { return this.tx(store, 'readwrite', s => s.put(item)); }
+    async getAll(store) { return this.tx(store, 'readonly', s => s.getAll()); }
+    async clear(store) { return this.tx(store, 'readwrite', s => s.clear()); }
+    async count(store) { return this.tx(store, 'readonly', s => s.count()); }
+}
+const DB_INSTANCE = new SimpleDB();
+
+
+// --- 2. MANAGEMENT LOGIC ---
+
+/** Renders agents into the list display */
+const renderAgentList = (agents) => {
+    const listEl = $('agentList');
+    const countDisplay = $('countDisplay');
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+    
+    if (agents.length === 0) {
+        listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#444;">DATABASE SCANNED. NO LIAS MANIFESTED.</div>';
+        countDisplay.textContent = '0 AGENTS';
+        return;
+    }
+
+    // Sort by canonical port order
+    agents.sort((a, b) => (a.port || 9999) - (b.port || 9999));
+    
+    agents.forEach(agent => {
+        const div = document.createElement('div');
+        div.className = 'agent-item';
+        
+        const statusColor = agent.onboarding_status === 'ONBOARDED' ? 'var(--main-color)' : 'var(--dim-text)';
+        
+        // Safe handling of role_layer - handle undefined/null cases
+        const roleDisplay = agent.role_layer 
+            ? agent.role_layer.split('/')[0].trim() 
+            : 'Unknown Role';
+        
+        div.innerHTML = `
+            <div>
+                <strong style="color:var(--text-color);">${agent.handle || agent.id || 'Unknown'}</strong> 
+                <span style="opacity: 0.7; font-size: 0.9em; color:var(--dim-text)">(${roleDisplay})</span>
+            </div>
+            <span style="font-size: 0.8em; color: ${statusColor};">
+                Port: ${agent.port || 'N/A'} | ${agent.onboarding_status || 'UNKNOWN'}
+            </span>
+        `;
+        listEl.appendChild(div);
+    });
+    countDisplay.textContent = `${agents.length} AGENTS`;
+};
+
+/** Initializes all agents from the canonical manifest */
+const initializeManifest = async () => {
+    const btn = $('initializeBtn');
+    
+    try {
+        const agentCount = await DB_INSTANCE.count('agents');
+        if (agentCount > 0) {
+            log(`Vault already contains ${agentCount} agents. Initialization aborted. Purge first.`, 'error');
+            return;
+        }
+    } catch (e) {
+        log(`DB Read Error during check: ${e.message}`, 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "WRITING MANIFEST...";
+
+    try {
+        log("Executing Canonical Manifest Initialization Protocol...");
+        
+        const agentPromises = InitialAgentManifest.map(agent => DB_INSTANCE.put('agents', agent));
+        await Promise.all(agentPromises);
+        
+        log(`SUCCESS: ${InitialAgentManifest.length} agents initialized with canonical ports (4000-4015).`, 'ok');
+        await manageUI.refreshList(); 
+    } catch (err) {
+        log(`CRITICAL FAILURE: Initialization failed. ${err.message}`, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "INITIALIZE MANIFEST (4000-4015)";
+    }
+};
+
+const manageUI = {
+    
+    handleInitBtn: async () => {
+        await initializeManifest();
+    },
+
+    async refreshList() {
+        try { 
+            $('status').textContent = 'DB ONLINE';
+            $('status').style.color = "var(--main-color)";
+            const agents = await DB_INSTANCE.getAll('agents'); 
+            renderAgentList(agents); 
+            log(`Manifest Refreshed. Total Agents: ${agents.length}`, 'ok'); 
+        } catch (err) { 
+            log(`READ ERROR: ${err.message}`, 'error'); 
+        }
+    },
+
+    async handlePurge() {
+        const purgeBtn = $('purgeBtn');
+        try {
+            if (!confirm("CRITICAL WARNING: This will delete ALL data. Proceed?")) throw new Error("Purge Protocol aborted by HITL.");
+            
+            purgeBtn.disabled = true;
+            log("Initiating Purge Protocol...", 'error');
+            
+            await DB_INSTANCE.clear('agents');
+            await DB_INSTANCE.clear('vectors');
+            
+            const req = indexedDB.deleteDatabase('MythOS_Vault');
+            await new Promise((resolve) => { req.onsuccess = resolve; req.onerror = resolve; }); 
+            
+            log("DATABASE PURGED. System reset. Reloading manager...", 'error');
+            setTimeout(() => location.reload(), 500); 
+        } catch(err) {
+            if (!err.message.includes("aborted")) {
+                log(`PURGE ERROR: ${err.message}`, 'error');
+            }
+        } finally {
+            purgeBtn.disabled = false;
+        }
+    },
+};
+
+
+// --- 3. EVENT WIRING AND INITIAL LOAD ---
+window.addEventListener('DOMContentLoaded', async () => {
+    
+    // 1. Initial DB status check
+    try {
+        await DB_INSTANCE.ready; 
+        $('status').textContent = "DB ONLINE";
+        $('status').style.color = "var(--main-color)";
+    } catch (e) {
+        $('status').textContent = "DB ERROR";
+        $('status').style.color = "var(--error-color)";
+        log(`CRITICAL INIT ERROR: Database failed. ${e.message || e}`, 'error');
+    }
+
+    // 2. Event Wiring
+    $('initializeBtn').addEventListener('click', manageUI.handleInitBtn); 
+    $('refreshBtn')?.addEventListener('click', manageUI.refreshList);
+    $('purgeBtn')?.addEventListener('click', manageUI.handlePurge);
+    
+    // 3. Initial List Load
+    manageUI.refreshList();
+});
+</script>
+</body>
+</html>

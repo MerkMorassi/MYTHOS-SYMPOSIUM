@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYTHOS VAULT // NOESIS v16.4 (BENCHMARK EDITION)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#111111',
+                        panel: '#000000',
+                        border: '#333333',
+                        textMain: '#eeeeee',
+                        textMuted: '#666666',
+                        accent: '#ffffff',
+                    },
+                    fontFamily: {
+                        mono: ['Menlo', 'Monaco', 'Courier New', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* --- CORE CSS (Unified Aesthetic) --- */
+        html { overflow-y: scroll; scroll-behavior: smooth; }
+        body { background-color: #111111; color: #eeeeee; font-family: 'Menlo', 'Monaco', 'Courier New', monospace; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Message/Prose Styling for Bot Output */
+        .prose h1 { font-size: 1.25em; font-weight: bold; margin-top: 1em; border-bottom: 1px solid #333; }
+        .prose h2 { font-size: 1.1em; font-weight: bold; margin-top: 1em; color: #fff; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose strong { color: #fff; font-weight: bold; }
+        .prose code { background: #222; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; color: #aaddff; }
+        .prose pre { background: #1a1a1a; padding: 1em; border-radius: 5px; overflow-x: auto; margin-bottom: 1em; border: 1px solid #333; }
+
+        /* Collapse Class Definition */
+        .hidden { display: none !important; }
+        
+        /* Unified Button/Input Styling */
+        .unified-btn { padding: 9px 15px; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; transition: all 0.2s; border: 1px solid transparent; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
+        .unified-input { width: 100%; padding: 10px; background: #111111; border: 1px solid #333333; color: #eeeeee; font-family: inherit; font-size: 0.8rem; box-sizing: border-box; outline: none; border-radius: 4px; }
+        
+    </style>
+</head>
+<body class="font-mono text-sm flex justify-center min-h-screen p-4 md:p-8 selection:bg-neutral-700 selection:text-white">
+
+<div class="w-full max-w-4xl flex flex-col gap-6">
+
+    <header class="text-center mb-4">
+        <h1 class="text-2xl font-bold tracking-[0.2em] text-neutral-500">MYTHOS VAULT</h1>
+        <div class="text-[0.65rem] text-neutral-600 tracking-widest mt-1">NOETIC SOVEREIGNTY ENGINE v16.4 (WEB-GPU MONOLITH - BENCHMARK)</div>
+    </header>
+
+    <section class="panel-section bg-black border border-border p-4 rounded-md shadow-lg shadow-black/50">
+        <div class="flex justify-between items-center cursor-pointer border-b border-border pb-2 mb-4 group" onclick="toggleSection(this, 'agentContent', 'agentToggle')">
+            <h2 class="text-textMuted group-hover:text-white transition-colors uppercase tracking-wider font-bold text-xs">00 / Agent Lifecycle</h2>
+            <span id="agentToggle" class="text-textMuted text-xs">[-]</span>
+        </div>
+        <div id="agentContent" class="flex flex-col gap-4">
+            <div class="input-group">
+                <label class="text-[10px] uppercase tracking-wider text-textMuted mb-1 block">Active Agent</label>
+                <select id="agentSelect" onchange="handleAgentChange()" class="unified-input bg-neutral-900 text-white cursor-pointer focus:border-white transition-colors text-xs">
+                    <option value="">--- SELECT AGENT ---</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label class="text-[10px] uppercase tracking-wider text-textMuted mb-1 block">Create New Agent</label>
+                <div class="flex gap-2">
+                    <input type="text" id="newAgentName" placeholder="New Agent Name..." class="unified-input flex-1 bg-neutral-900/50 placeholder:text-neutral-700 focus:bg-black">
+                    <button id="createAgentBtn" onclick="createAgent()" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white hover:border-white text-xs">Create</button>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 justify-between">
+                <div class="flex items-start gap-2 p-3 border border-border rounded bg-neutral-900/20">
+                    <input type="checkbox" id="elaraToggle" checked class="accent-white cursor-pointer w-4 h-4 mt-1" onchange="toggleElara()">
+                    <label for="elaraToggle" class="text-xs text-neutral-400 cursor-pointer select-none font-bold">Enable WebGPU Elara Engine</label>
+                </div>
+                <button id="deleteAgentBtn" onclick="deleteAgent()" class="unified-btn bg-red-950/20 border border-red-900/30 text-red-700 hover:bg-red-900/40 hover:text-red-400 p-2 text-xs w-48">Delete Current Agent</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-black border border-border p-4 rounded-md shadow-lg shadow-black/50">
+        <div class="flex justify-between items-center cursor-pointer border-b border-border pb-2 mb-4 group" onclick="toggleSection(this, 'configContent', 'configToggle')">
+            <h2 class="text-textMuted group-hover:text-white transition-colors uppercase tracking-wider font-bold text-xs">01 / Configuration</h2>
+            <span id="configToggle" class="text-textMuted text-xs">[-]</span>
+        </div>
+        
+        <div id="configContent" class="flex flex-col gap-4">
+            <div>
+                <input type="password" id="apiKey" placeholder="PASTE GEMINI API KEY HERE" class="unified-input bg-neutral-900/50 placeholder:text-neutral-700 focus:bg-black" oninput="validateApiKey()">
+                <button id="saveKeyBtn" onclick="saveKey()" disabled class="unified-btn w-full bg-neutral-900 border border-border text-textMuted hover:text-white hover:border-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs">
+                    Save Credentials
+                </button>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="fetchModels()" id="fetchModelsBtn" class="unified-btn flex-1 bg-neutral-900 border border-border text-textMuted hover:text-white hover:border-white transition-all text-xs">
+                    🔄 Fetch Models
+                </button>
+                <select id="modelSelect" class="unified-input flex-[2] bg-neutral-900 text-white cursor-pointer focus:border-white transition-colors text-xs" onchange="saveSettings()">
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Default)</option>
+                    <option value="gemini-3.0-pro">Gemini 3.0 Pro (Thinking Model)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-wider text-textMuted mb-1 block">System Persona (The Soul)</label>
+                <textarea id="systemInstruction" rows="3" placeholder="e.g., You are NOESIS, the Sovereign Intelligence..." class="unified-input bg-neutral-900/30 resize-y text-xs"></textarea>
+                <button id="saveSettingsBtn" onclick="saveSettings()" class="unified-btn w-full mt-2 bg-neutral-900 border border-border text-textMuted hover:text-white hover:border-white text-xs">Save Persona</button>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-wider text-textMuted mb-1 block">Protected Glossary (Sacred Lexicon)</label>
+                <textarea id="protectedWords" rows="2" placeholder="e.g., Malindra, Nareth, Musiki, Xilatheon, Pilousis, Entropica" class="unified-input bg-neutral-900/30 resize-y text-xs text-green-400"></textarea>
+                <button onclick="saveSettings()" class="unified-btn w-full mt-2 bg-neutral-900 border border-border text-textMuted hover:text-white hover:border-white text-xs">Save Glossary</button>
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-textMuted pt-2 border-t border-border mt-2">
+                <span id="memStatus">Database: Loading...</span>
+                <span id="keyStatus">Key: Not Set</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button id="exportBtn" onclick="exportDB()" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white p-2 text-xs transition-all">Export JSON</button>
+                <button id="restoreBtn" onclick="document.getElementById('restoreInput').click()" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white p-2 text-xs transition-all">Import JSON</button>
+                <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreDB(this)">
+            </div>
+            <button id="purgeBtn" onclick="clearVectors()" class="unified-btn w-full bg-red-950/20 border border-red-900/30 text-red-700 hover:bg-red-900/40 hover:text-red-400 p-2 text-xs">Purge Knowledge Base</button>
+        </div>
+    </section>
+
+    <section class="bg-black border border-border p-4 rounded-md shadow-lg shadow-black/50">
+        <div class="flex justify-between items-center cursor-pointer border-b border-border pb-2 mb-4 group" onclick="toggleSection(this, 'ingestionContent', 'ingestionToggle')">
+            <h2 class="text-textMuted group-hover:text-white transition-colors uppercase tracking-wider font-bold text-xs">02 / Knowledge Ingestion</h2>
+            <span id="ingestionToggle" class="text-textMuted text-xs">[-]</span>
+        </div>
+        
+        <div id="ingestionContent" class="flex flex-col gap-4">
+            <input type="file" id="fileInput" accept=".txt" multiple class="hidden" onchange="handleFileSelect(this)">
+            
+            <button onclick="document.getElementById('fileInput').click()" class="unified-btn w-full border border-dashed border-neutral-800 p-8 rounded text-textMuted hover:text-white hover:border-neutral-500 hover:bg-neutral-900/30 transition-all text-center group">
+                <div class="text-2xl mb-2 opacity-50 group-hover:opacity-100 transition-opacity">📄</div>
+                <span id="fileLabel" class="text-xs tracking-wide">CLICK TO SELECT .TXT SOURCE FILES</span>
+            </button>
+
+            <div class="flex items-start gap-2 p-3 border border-border rounded bg-neutral-900/20">
+                <input type="checkbox" id="cleanData" class="accent-white cursor-pointer w-4 h-4 mt-1">
+                <div class="flex flex-col">
+                    <label for="cleanData" class="text-xs text-neutral-400 cursor-pointer select-none font-bold">AI Pre-Cleaning (Sanitizer)</label>
+                    <span class="text-[10px] text-neutral-600">Fixes typos/grammar but PRESERVES words in your Glossary. Slower but higher fidelity.</span>
+                </div>
+            </div>
+
+            <div id="progressContainer" class="hidden w-full bg-neutral-900 border border-border h-6 rounded relative overflow-hidden">
+                <div id="progressBar" class="h-full bg-green-900/60 transition-all duration-300" style="width: 0%"></div>
+                <div id="progressText" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white tracking-wider">0%</div>
+            </div>
+
+            <div class="flex gap-2">
+                <button id="ingestBtn" onclick="processFiles()" class="unified-btn flex-1 bg-white text-black border border-white hover:bg-neutral-200 transition-all disabled:opacity-50 text-xs tracking-wider">
+                    Vectorize & Store
+                </button>
+                <button id="abortBtn" onclick="abortIngestion()" class="unified-btn hidden w-24 bg-red-900/30 border border-red-500/50 text-red-400 hover:bg-red-900/50 transition-all animate-pulse text-xs">
+                    STOP
+                </button>
+            </div>
+
+            <div class="mt-2">
+                <div class="flex justify-between items-baseline mb-2">
+                    <span id="dbCountDisplay" class="text-xs font-bold text-neutral-500">Total Vectors: 0</span>
+                    <h3 class="text-[10px] uppercase text-textMuted">Active Sources</h3>
+                </div>
+                <div id="sourceList" class="flex flex-wrap gap-2 min-h-[24px]">
+                    <span class="text-xs text-neutral-800 italic">No sources loaded</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="interfaceSection" class="bg-black border border-border p-4 rounded-md flex-1 flex flex-col shadow-lg shadow-black/50">
+        <div class="panel-header flex justify-between items-center cursor-pointer border-b border-border pb-2 mb-4 group" onclick="toggleSection(this, 'interfaceContent', 'interfaceToggle')">
+            <h2 class="text-textMuted group-hover:text-white transition-colors uppercase tracking-wider font-bold text-xs">03 / Interface (Hybrid Brain)</h2>
+            <div class="flex items-center gap-2">
+                <button id="exportChatBtn" onclick="exportChat()" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white p-1 text-xs">💾</button>
+                <button id="clearChatBtn" onclick="clearChat()" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white p-1 text-xs">🗑️</button>
+                <span id="interfaceToggle" class="text-textMuted text-xs">[-]</span>
+            </div>
+        </div>
+
+        <div id="interfaceContent" class="flex flex-col gap-4 flex-1">
+            <div id="chatHistory" class="flex-1 min-h-[400px] max-h-[600px] overflow-y-auto p-4 border border-border rounded bg-neutral-950 mb-4 flex flex-col gap-6 shadow-inner">
+                <div class="text-center text-xs text-neutral-700 italic py-10">
+                    System Initialized. The Vault is Open.<br>
+                    Hybrid Brain (WebGPU + NumMarkX) Active.
+                </div>
+            </div>
+
+            <textarea id="queryInput" rows="3" placeholder="Input query stream..." disabled class="unified-input w-full bg-black border border-border p-4 rounded resize-none mb-2 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm placeholder:text-neutral-700" onkeypress="handleKey(event)"></textarea>
+            
+            <button onclick="query()" id="queryBtn" disabled class="unified-btn w-full bg-white text-black border border-white hover:bg-neutral-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs tracking-[0.1em]">
+                Execute Noetic Pull
+            </button>
+        </div>
+    </section>
+
+    <section class="bg-black border border-border p-4 rounded-md shadow-lg shadow-black/50">
+        <div class="flex justify-between items-center cursor-pointer border-b border-border pb-2 mb-4 group" onclick="toggleSection(this, 'analyticsContent', 'analyticsToggle')">
+            <h2 class="text-textMuted group-hover:text-white transition-colors uppercase tracking-wider font-bold text-xs">04 / Analytics</h2>
+            <span id="analyticsToggle" class="text-textMuted text-xs">[-]</span>
+        </div>
+        
+        <div id="analyticsContent" class="grid grid-cols-2 gap-3">
+            <button id="btnSum" onclick="runAnalysis('SUMMARY')" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white p-3 text-xs transition-all hover:bg-neutral-800">✨ Summarize Knowledge</button>
+            <button id="btnQuest" onclick="runAnalysis('QUESTIONS')" class="unified-btn bg-neutral-900 border border-border text-textMuted hover:text-white p-3 text-xs transition-all hover:bg-neutral-800">✨ Generate Questions</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // --- NOETIC CORE v16.4 (AGENTIC BENCHMARK) ---
+    
+    // 1. STATE & CONSTANTS
+    const API_KEY_STORAGE = 'gemini_api_key';
+    const VECTOR_DIMENSION = 768;
+    let RAM_VECTORS = []; 
+    let ABORT_CONTROLLER = null;
+    let IS_INGESTING = false;
+    let IS_GPU_READY = false;
+    let currentAgentId = null; 
+    let IS_ELARA_ENABLED = true; // Global control for WebGPU/CPU benchmark toggle
+
+
+    // --- NUMMARKX: THE TELEPORTER (JUMP DRIVE / Coordinate Certainty) ---
+    class NumMarkX_Engine {
+        constructor() { this.grid = new Map(); }
+        generateKey(text) {
+            const clean = text.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+            if (!clean) return null;
+            let encoded = '';
+            for (let i = 0; i < clean.length; i++) {
+                const asciiCode = clean.charCodeAt(i);
+                encoded += asciiCode.toString().padStart(3, "0");
+            }
+            return encoded;
+        }
+        index(docId, text) {
+            const key = this.generateKey(text);
+            if (!key) return;
+            if (!this.grid.has(key)) this.grid.set(key, new Set());
+            this.grid.get(key).add(docId);
+        }
+        teleport(queryText) {
+            const key = this.generateKey(queryText);
+            if (!key || !this.grid.has(key)) return null;
+            return Array.from(this.grid.get(key));
+        }
+        rebuildIndex(vectors) {
+            this.grid.clear();
+            vectors.forEach(v => this.index(v.id, v.text));
+            console.log(`[NumMarkX] Teleporter Online. Nodes: ${this.grid.size}`);
+        }
+    }
+    const TELEPORTER = new NumMarkX_Engine();
+
+
+    // --- ELARA ENGINE: WEB-GPU WARP DRIVE (Vector Resonance) ---
+    class Elara_VectorEngine {
+        constructor(dim) {
+            this.dim = dim;
+            this.isGpuAvailable = ('gpu' in navigator);
+            this.device = null;
+            this.searchShaderModule = null;
+        }
+
+        async initialize() {
+            if (!this.isGpuAvailable) {
+                log("[Elara] WebGPU not supported. Vector search will be slow (CPU Fallback).", 'err');
+                return;
+            }
+            try {
+                const adapter = await navigator.gpu.requestAdapter();
+                this.device = await adapter.requestDevice();
+                this.searchShaderModule = this.device.createShaderModule({
+                    code: this.getSearchShaderCode()
+                });
+                IS_GPU_READY = true;
+                log("[Elara] WebGPU Engine Online. Vector search is GPU-Accelerated.", 'sys');
+            } catch (e) {
+                log(`[Elara] WebGPU Init Failed: ${e.message} (CPU Fallback).`, 'err');
+                this.isGpuAvailable = false;
+            }
+        }
+        
+        getSearchShaderCode() {
+            return `
+                struct Uniforms {
+                    numVectors: u32,
+                    vectorDim: u32,
+                    queryNormSq: f32,
+                };
+                @group(0) @binding(0) var<uniform> u: Uniforms;
+                @group(0) @binding(1) var<storage, read> queryVector: array<f32>;
+                @group(0) @binding(2) var<storage, read> vectorDB: array<f32>;
+                @group(0) @binding(3) var<storage, read_write> scoreBuffer: array<f32>;
+
+                @compute
+                @workgroup_size(64)
+                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+                    let vecIndex = global_id.x;
+                    if (vecIndex >= u.numVectors) { return; }
+
+                    var dotProduct: f32 = 0.0;
+                    var dbNormSq: f32 = 0.0;
+
+                    let start = vecIndex * u.vectorDim;
+                    for (var i: u32 = 0u; i < u.vectorDim; i = i + 1u) {
+                        let dbValue = vectorDB[start + i];
+                        dotProduct += queryVector[i] * dbValue;
+                        dbNormSq += dbValue * dbValue;
+                    }
+                    
+                    let divisor = sqrt(u.queryNormSq) * sqrt(dbNormSq);
+                    let similarity = dotProduct / divisor;
+
+                    scoreBuffer[vecIndex] = select(0.0, similarity, divisor != 0.0);
+                }
+            `;
+        }
+        
+        async search(queryVector, ramVectors) {
+            if (!this.isGpuAvailable || ramVectors.length === 0 || !IS_ELARA_ENABLED) {
+                return this._cpuSearchFallback(queryVector, ramVectors);
+            }
+            
+            const numVectors = ramVectors.length;
+            const vectorDimension = this.dim;
+
+            let queryBuffer, dbBuffer, scoreBuffer, stagingBuffer, uniformBuffer;
+            let scoredResults = null;
+
+            try {
+                const qVecFloat32 = new Float32Array(queryVector); 
+                const dbFlattened = new Float32Array(ramVectors.length * vectorDimension);
+                for (let i = 0; i < ramVectors.length; i++) {
+                    dbFlattened.set(ramVectors[i].vector, i * vectorDimension);
+                }
+
+                let queryNormSq = 0;
+                for (let i = 0; i < qVecFloat32.length; i++) {
+                    queryNormSq += qVecFloat32[i] * qVecFloat32[i];
+                }
+
+                // --- GPU BUFFERS & COMMAND ENCODING ---
+                queryBuffer = this.device.createBuffer({
+                    size: qVecFloat32.byteLength,
+                    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+                    mappedAtCreation: true,
+                });
+                new Float32Array(queryBuffer.getMappedRange()).set(qVecFloat32);
+                queryBuffer.unmap();
+
+                dbBuffer = this.device.createBuffer({
+                    size: dbFlattened.byteLength,
+                    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+                    mappedAtCreation: true,
+                });
+                new Float32Array(dbBuffer.getMappedRange()).set(dbFlattened);
+                dbBuffer.unmap();
+                
+                const scoreBufferSize = numVectors * Float32Array.BYTES_PER_ELEMENT;
+                scoreBuffer = this.device.createBuffer({
+                    size: scoreBufferSize,
+                    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
+                });
+                stagingBuffer = this.device.createBuffer({
+                    size: scoreBufferSize,
+                    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+                });
+
+                const uniformData = new Float32Array([
+                    numVectors, vectorDimension, queryNormSq, 0
+                ]);
+                uniformBuffer = this.device.createBuffer({
+                    size: uniformData.byteLength,
+                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                    mappedAtCreation: true,
+                });
+                new Float32Array(uniformBuffer.getMappedRange()).set(uniformData);
+                uniformBuffer.unmap();
+
+                const pipeline = this.device.createComputePipeline({
+                    layout: 'auto',
+                    compute: { module: this.searchShaderModule, entryPoint: 'main' },
+                });
+
+                const bindGroup = this.device.createBindGroup({
+                    layout: pipeline.getBindGroupLayout(0),
+                    entries: [
+                        { binding: 0, resource: { buffer: uniformBuffer } },
+                        { binding: 1, resource: { buffer: queryBuffer } },
+                        { binding: 2, resource: { buffer: dbBuffer } },
+                        { binding: 3, resource: { buffer: scoreBuffer } },
+                    ],
+                });
+
+                const commandEncoder = this.device.createCommandEncoder();
+                const passEncoder = commandEncoder.beginComputePass();
+                passEncoder.setPipeline(pipeline);
+                passEncoder.setBindGroup(0, bindGroup);
+                passEncoder.dispatchWorkgroups(Math.ceil(numVectors / 64)); 
+                passEncoder.end();
+
+                commandEncoder.copyBufferToBuffer(
+                    scoreBuffer, 0,
+                    stagingBuffer, 0,
+                    scoreBufferSize
+                );
+
+                this.device.queue.submit([commandEncoder.finish()]);
+
+                await stagingBuffer.mapAsync(GPUMapMode.READ);
+                const scores = new Float32Array(stagingBuffer.getMappedRange());
+                
+                scoredResults = ramVectors.map((v, i) => ({
+                    ...v,
+                    score: scores[i]
+                }));
+                
+                stagingBuffer.unmap();
+
+            } catch(e) {
+                log(`[Elara] GPU Execution failed (Validation Error/Hang). Falling back to CPU.`, 'err');
+                console.error(`[Elara_VectorEngine] GPU Error:`, e);
+                scoredResults = this._cpuSearchFallback(queryVector, ramVectors);
+            } finally {
+                if (queryBuffer) queryBuffer.destroy();
+                if (dbBuffer) dbBuffer.destroy();
+                if (scoreBuffer) scoreBuffer.destroy();
+                if (stagingBuffer) stagingBuffer.destroy();
+                if (uniformBuffer) uniformBuffer.destroy();
+            }
+
+            return scoredResults;
+        }
+        
+        _cpuSearchFallback(qVec, ramVectors) {
+            log("[Elara] Performing CPU-based vector search (FALLBACK).", 'sys');
+            
+            const cosineSimilarity = (a, b) => {
+                let dot=0, nA=0, nB=0; for(let i=0; i<a.length; i++) { dot+=a[i]*b[i]; nA+=a[i]*a[i]; nB+=b[i]*b[i]; }
+                return dot/(Math.sqrt(nA)*Math.sqrt(nB)) || 0;
+            };
+            return ramVectors.map(v => ({ ...v, score: cosineSimilarity(qVec, v.vector) }));
+        }
+    }
+    const ELARA_ENGINE = new Elara_VectorEngine(VECTOR_DIMENSION);
+
+
+    // 2. DB WRAPPER (IndexedDB)
+    class SimpleDB {
+        constructor(dbName = 'mythos_vault') { this.dbName = dbName; this.db = null; }
+        async open() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(this.dbName, 5); // Version 5 upgrade
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('vectors')) db.createObjectStore('vectors', { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains('logs')) db.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
+                    if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
+                    if (!db.objectStoreNames.contains('agents')) db.createObjectStore('agents', { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains('agent_settings')) db.createObjectStore('agent_settings', { keyPath: 'agentId' });
+                };
+                request.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+        async tx(storeName, mode, callback) {
+            return new Promise((resolve, reject) => {
+                const tx = this.db.transaction(storeName, mode);
+                const store = tx.objectStore(storeName);
+                let request;
+                try {
+                    request = callback(store);
+                } catch(e) {
+                    tx.abort();
+                    return reject(e);
+                }
+                
+                if (request instanceof IDBRequest) {
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(tx.error);
+                } else {
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                }
+            });
+        }
+        async addBulk(storeName, items) {
+            const tx = this.db.transaction(storeName, 'readwrite');
+            const store = tx.objectStore(storeName);
+            items.forEach(item => store.put(item));
+            return new Promise((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+        async getAll(storeName) {
+             return this.tx(storeName, 'readonly', store => store.getAll());
+        }
+        async get(storeName, key) {
+             return this.tx(storeName, 'readonly', store => store.get(key));
+        }
+        async delete(storeName, key) {
+             return this.tx(storeName, 'readwrite', store => store.delete(key));
+        }
+    }
+    const db = new SimpleDB();
+
+    // 3. AGENT MANAGEMENT MODULE (Simplified for Monolith)
+    async function loadAndPopulateAgents() {
+        const select = document.getElementById('agentSelect');
+        const agents = (await db.getAll('agents')) || [];
+        
+        select.innerHTML = '<option value="">--- SELECT AGENT ---</option>';
+        agents.forEach(agent => {
+            const option = new Option(agent.name, agent.id);
+            select.add(option);
+        });
+        
+        const lastAgentId = localStorage.getItem('last_agent_id');
+        if (lastAgentId && agents.some(a => a.id === lastAgentId)) {
+            select.value = lastAgentId;
+            await handleAgentChange();
+        } else if (agents.length > 0) {
+            select.value = agents[0].id;
+            await handleAgentChange();
+        }
+    }
+
+    async function handleAgentChange() {
+        const select = document.getElementById('agentSelect');
+        currentAgentId = select.value;
+
+        if (!currentAgentId) {
+            log("No agent selected. Data is global.", "sys");
+            document.getElementById('queryInput').disabled = true;
+            document.getElementById('queryBtn').disabled = true;
+            return;
+        }
+
+        localStorage.setItem('last_agent_id', currentAgentId);
+        log(`Agent [${select.selectedOptions[0].text}] selected.`, "sys");
+
+        const agentSettingsRecord = await db.get('agent_settings', currentAgentId);
+        const settings = agentSettingsRecord?.settings || {};
+        
+        document.getElementById('systemInstruction').value = settings.systemInstruction || '';
+        document.getElementById('protectedWords').value = settings.protectedWords || '';
+        document.getElementById('modelSelect').value = settings.model || 'gemini-2.5-flash';
+        
+        document.getElementById('queryInput').disabled = false;
+        document.getElementById('queryBtn').disabled = false;
+    }
+
+    async function createAgent() {
+        const input = document.getElementById('newAgentName');
+        const name = input.value.trim();
+        if (!name) return log("Agent name cannot be empty.", "err");
+
+        const newAgent = { id: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`, name };
+        await db.addBulk('agents', [newAgent]);
+        input.value = '';
+        await loadAndPopulateAgents();
+        document.getElementById('agentSelect').value = newAgent.id;
+        await handleAgentChange();
+        log(`Agent "${name}" created.`, "sys");
+    }
+
+    async function deleteAgent() {
+        if (!currentAgentId) return log("No agent selected to delete.", "err");
+
+        const agentName = document.getElementById('agentSelect').selectedOptions[0].text;
+        if (confirm(`Permanently delete agent "${agentName}" and all associated settings? THIS CANNOT BE UNDONE.`)) {
+            log(`Deleting agent "${agentName}"...`, "sys");
+            await db.delete('agent_settings', currentAgentId);
+            await db.delete('agents', currentAgentId);
+            
+            currentAgentId = null;
+            await loadAndPopulateAgents();
+            log(`Agent "${agentName}" deleted.`, "sys");
+        }
+    }
+    
+    async function saveSettings() {
+        await db.addBulk('settings', [
+            { key: 'systemInstruction', value: document.getElementById('systemInstruction').value },
+            { key: 'protectedWords', value: document.getElementById('protectedWords').value }
+        ]);
+
+        if (currentAgentId) {
+            const settings = {
+                systemInstruction: document.getElementById('systemInstruction').value,
+                protectedWords: document.getElementById('protectedWords').value,
+                model: document.getElementById('modelSelect').value
+            };
+            await db.addBulk('agent_settings', [{ agentId: currentAgentId, settings }]);
+        }
+        
+        log("System protocols updated.", "sys");
+    }
+
+    function toggleElara() {
+        const toggle = document.getElementById('elaraToggle');
+        IS_ELARA_ENABLED = toggle.checked;
+        if (IS_ELARA_ENABLED) {
+            log("WebGPU Elara Engine: ENABLED. Attempting GPU-accelerated search.", "sys");
+        } else {
+            log("WebGPU Elara Engine: DISABLED. Forcing CPU fallback search.", "sys");
+        }
+    }
+
+
+    // 3. INITIALIZATION
+    window.onload = async () => {
+        await ELARA_ENGINE.initialize();
+
+        const key = localStorage.getItem(API_KEY_STORAGE);
+        if(key) {
+            document.getElementById('apiKey').value = key;
+            document.getElementById('keyStatus').innerText = "Key: Loaded";
+            validateApiKey();
+        }
+        try {
+            await db.open();
+            RAM_VECTORS = await db.tx('vectors', 'readonly', store => store.getAll());
+            TELEPORTER.rebuildIndex(RAM_VECTORS);
+            updateStatus();
+            updateSourceList();
+            
+            await loadAndPopulateAgents(); 
+            
+            const history = await db.tx('logs', 'readonly', store => store.getAll());
+            const chatBox = document.getElementById('chatHistory');
+            if(history.length > 0) chatBox.innerHTML = ''; 
+            history.slice(-50).forEach(entry => renderMsg(entry.text, entry.author, false));
+
+        } catch (e) { log("DB Init Error: " + e.message, "err"); }
+    };
+
+    // 4. UI HELPERS & UTILS
+    function toggleSection(header, contentId, toggleId) {
+        const content = document.getElementById(contentId);
+        const toggle = document.getElementById(toggleId);
+        const activeClasses = ['border-b', 'border-border', 'pb-2', 'mb-4'];
+        
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden'); 
+            toggle.innerText = '[-]'; 
+            header.classList.add(...activeClasses);
+            if (contentId === 'interfaceContent') document.getElementById('interfaceSection').classList.add('flex-1', 'flex', 'flex-col');
+        } else {
+            content.classList.add('hidden'); 
+            toggle.innerText = '[+]'; 
+            header.classList.remove(...activeClasses);
+            if (contentId === 'interfaceContent') document.getElementById('interfaceSection').classList.remove('flex-1', 'flex', 'flex-col');
+        }
+    }
+    
+    function validateApiKey() { document.getElementById('saveKeyBtn').disabled = !document.getElementById('apiKey').value.trim(); }
+    function enableChat(enabled) {
+        const el = document.getElementById('queryInput'), btn = document.getElementById('queryBtn');
+        el.disabled = !enabled; btn.disabled = !enabled;
+        el.placeholder = enabled ? "Input query stream..." : "Input query stream... (Requires API Key)";
+    }
+    function saveKey() {
+        const key = document.getElementById('apiKey').value.trim();
+        if(!key) return;
+        localStorage.setItem(API_KEY_STORAGE, key);
+        document.getElementById('keyStatus').innerText = "Key: Saved";
+        enableChat(true);
+        log("Credentials saved.", "sys");
+    }
+
+    async function restoreGlossary(input) {
+        const f = input.files[0];
+        if(!f) return;
+        
+        log(`Importing Glossary from ${f.name}...`, 'sys');
+        
+        try {
+            const text = await f.text();
+            let newWords = [];
+            
+            if (f.name.endsWith('.json')) {
+                const data = JSON.parse(text);
+                
+                const extractStrings = (obj) => {
+                    let strings = [];
+                    if (typeof obj === 'string') {
+                        strings.push(obj);
+                    } else if (Array.isArray(obj)) {
+                        obj.forEach(item => {
+                            if (typeof item === 'string') strings.push(item);
+                            else if (typeof item === 'object' && item !== null) strings.push(...extractStrings(item));
+                        });
+                    } else if (typeof obj === 'object' && obj !== null) {
+                        Object.values(obj).forEach(val => {
+                             if (typeof val === 'string') strings.push(val);
+                             else if (typeof val === 'object' && val !== null) strings.push(...extractStrings(val));
+                        });
+                        Object.keys(obj).forEach(key => strings.push(key));
+                    }
+                    return strings;
+                };
+
+                newWords = extractStrings(data).flat(Infinity);
+                
+            } else {
+                newWords = text.split(/[\n,;]/).map(w => w.trim()).filter(w => w.length > 0);
+            }
+
+            const currentGlossaryText = document.getElementById('protectedWords').value;
+            let currentWords = currentGlossaryText.split(/[\n,;]/).map(w => w.trim()).filter(w => w.length > 0);
+            
+            const mergedSet = new Set([...currentWords, ...newWords]);
+            const finalGlossaryText = Array.from(mergedSet).join(', ');
+            
+            document.getElementById('protectedWords').value = finalGlossaryText;
+            await saveSettings(); 
+            
+            log(`Glossary import successful. ${newWords.length} unique terms added/updated.`, "sys");
+        } catch(e) {
+            log(`Glossary Import Failed: ${e.message}`, 'err');
+        } finally {
+            input.value = '';
+        }
+    }
+
+    function updateStatus() { 
+        const c = RAM_VECTORS.length; 
+        document.getElementById('memStatus').innerText = `Database: ${c} vectors`; 
+        document.getElementById('dbCountDisplay').innerText = `Total Vectors: ${c}`;
+    }
+    function updateSourceList() {
+        const u = [...new Set(RAM_VECTORS.map(v => v.source))];
+        const d = document.getElementById('sourceList');
+        if (u.length === 0) { d.innerHTML = '<span class="text-xs text-neutral-800 italic">No sources loaded</span>'; return; }
+        d.innerHTML = u.map(s => `<span class="bg-neutral-900 border border-neutral-800 text-neutral-400 text-[10px] px-2 py-1 rounded tracking-wide">${s}</span>`).join('');
+    }
+    function handleFileSelect(input) { document.getElementById('fileLabel').innerText = input.files.length > 0 ? `${input.files.length} FILES SELECTED` : "CLICK TO SELECT .TXT SOURCE FILES"; }
+    function setLoading(btnId, isLoading, text, addPulse = false) {
+        const btn = document.getElementById(btnId);
+        if(isLoading) { btn.disabled = true; btn.innerText = text; btn.classList.add('opacity-75', 'cursor-wait'); if(addPulse) btn.classList.add('animate-pulse'); } 
+        else { btn.disabled = false; btn.innerText = text; btn.classList.remove('opacity-75', 'cursor-wait', 'animate-pulse'); }
+    }
+
+    // 5. GEMINI API CLIENT (With Retry Logic)
+    async function apiCall(endpoint, payload) {
+        const key = document.getElementById('apiKey').value;
+        if(!key) throw new Error("API Key required");
+        
+        let url = "", body = {};
+        
+        if (endpoint === 'embed') {
+            url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${key}`;
+            body = { model: 'models/text-embedding-004', content: { parts: [{ text: payload.text }] }, taskType: payload.type };
+        } else if (endpoint === 'generate') {
+            const model = payload.modelOverride || document.getElementById('modelSelect').value;
+            url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+            const sysInst = document.getElementById('systemInstruction').value;
+            body = { contents: [{ parts: [{ text: payload.prompt }] }], ...(sysInst && { systemInstruction: { parts: [{ text: sysInst }] } }) };
+        } else if (endpoint === 'models') {
+            url = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
+            const res = await fetch(url);
+            if(!res.ok) throw new Error("Fetch failed");
+            return await res.json();
+        }
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!response.ok) { const err = await response.json(); throw new Error(err.error?.message || response.statusText); }
+        return await response.json();
+    }
+    
+    async function apiCallWithRetry(endpoint, payload, maxRetries = 3) {
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                return await apiCall(endpoint, payload);
+            } catch (error) {
+                if (attempt === maxRetries - 1 || (error.message && !/API Key required|Fetch failed/.test(error.message))) {
+                    throw error;
+                }
+                const delay = Math.pow(2, attempt) * 1000;
+                console.warn(`[API Retry] Attempt ${attempt + 1}/${maxRetries} failed. Retrying in ${delay}ms...`);
+                log(`[Retry] API rate limit hit. Retrying segment in ${delay / 1000}s...`, "sys");
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+
+    async function fetchModels() {
+        setLoading('fetchModelsBtn', true, "Fetching...");
+        try {
+            const data = await apiCall('models');
+            const select = document.getElementById('modelSelect');
+            select.innerHTML = '';
+            const models = data.models.filter(m => m.supportedGenerationMethods?.includes("generateContent"));
+            if (models.length > 0) {
+                models.forEach(m => { const opt = document.createElement('option'); opt.value = m.name.replace('models/', ''); opt.innerText = m.displayName; select.appendChild(opt); });
+                log(`Discovered ${models.length} models.`, "sys");
+            } else { throw new Error("No compatible models."); }
+        } catch(e) { log("Using fallback list.", "sys"); } 
+        finally { setLoading('fetchModelsBtn', false, "🔄 Fetch Models"); }
+    }
+
+
+    // --- MODEL GATE PROTOCOL (MGP) MODULE ---
+    function getModelForTask(queryText) {
+        const defaultModel = document.getElementById('modelSelect')?.value || 'gemini-2.5-flash';
+        const lowQuery = queryText.toLowerCase();
+
+        const triggerWords = [
+            'synthesize', 'deeply', 'complex analysis', 'tragedy', 
+            'profound', 'critical assessment', 'paradigm shift', '3.0 pro', '3.0'
+        ];
+        
+        const isHighReasoning = triggerWords.some(word => lowQuery.includes(word));
+
+        if (isHighReasoning) {
+            const proModel = 'gemini-3.0-pro'; 
+            const selectElement = document.getElementById('modelSelect');
+            
+            if (selectElement && selectElement.querySelector(`option[value="${proModel}"]`)) {
+                console.log(`[MGP] High Reasoning task detected. Upgrading to ${proModel}.`);
+                return proModel;
+            }
+        }
+        return defaultModel;
+    }
+
+
+    // 6. PIPELINE UTILS (High-Fidelity Chunking)
+    function chunkText(text, targetSize = 600) {
+        const chunks = [];
+        let index = 0;
+
+        while (index < text.length) {
+            let limit = Math.min(index + targetSize, text.length);
+            if (limit >= text.length) { chunks.push(text.slice(index)); break; }
+            
+            let splitIndex = -1;
+            const lookback = 100;
+            let searchStart = Math.max(index, limit - lookback);
+
+            splitIndex = text.lastIndexOf('\n', limit);
+            if (splitIndex < searchStart) {
+                const sub = text.slice(searchStart, limit);
+                const match = sub.match(/[.!?]\s/); 
+                if (match) {
+                     splitIndex = searchStart + match.index + 1;
+                }
+            }
+
+            if (splitIndex < searchStart) {
+                splitIndex = text.lastIndexOf(' ', limit);
+            }
+
+            if (splitIndex <= index) {
+                splitIndex = limit;
+            }
+
+            const chunk = text.slice(index, splitIndex).trim();
+            if (chunk.length > 0) chunks.push(chunk);
+            index = splitIndex;
+        }
+        return chunks;
+    }
+    
+    // 7. INGESTION LOGIC (With Sanitizer)
+    function abortIngestion() { if(ABORT_CONTROLLER) { ABORT_CONTROLLER.abort(); ABORT_CONTROLLER = null; log("Aborted.", "err"); resetIngestionUI(); } }
+    function resetIngestionUI() {
+        IS_INGESTING = false;
+        document.getElementById('ingestBtn').classList.remove('hidden');
+        document.getElementById('abortBtn').classList.add('hidden');
+        document.getElementById('progressContainer').classList.add('hidden');
+        document.getElementById('fileInput').value = ''; 
+        document.getElementById('fileLabel').innerText = "CLICK TO SELECT .TXT SOURCE FILES";
+    }
+
+    async function processFiles() {
+        const input = document.getElementById('fileInput');
+        if(input.files.length === 0) return alert("No files selected.");
+        
+        IS_INGESTING = true;
+        ABORT_CONTROLLER = new AbortController();
+        const signal = ABORT_CONTROLLER.signal;
+
+        document.getElementById('ingestBtn').classList.add('hidden');
+        document.getElementById('abortBtn').classList.remove('hidden');
+        document.getElementById('progressContainer').classList.remove('hidden');
+        const bar = document.getElementById('progressBar'), txt = document.getElementById('progressText');
+        
+        const clean = document.getElementById('cleanData').checked;
+        const protectedWords = document.getElementById('protectedWords').value;
+        
+        try {
+            const files = Array.from(input.files);
+            let totalChunksEstimate = 0, processedChunks = 0;
+
+            for (const file of files) {
+                if(signal.aborted) break;
+                log(`Processing ${file.name}...`, "sys");
+                let text = await file.text();
+
+                // SANITIZER PROTOCOL
+                if(clean) {
+                    log(`Sanitizing ${file.name}... (High Fidelity Mode)`, "sys");
+                    const cleanChunks = [];
+                    const CLEAN_BATCH = 30000;
+                    for(let c=0; c < text.length; c += CLEAN_BATCH) {
+                        if(signal.aborted) break;
+                        const sub = text.slice(c, c + CLEAN_BATCH);
+                        const prompt = `TASK: Clean text. Fix typos/grammar. DO NOT CHANGE THESE WORDS: ${protectedWords}. Text: ${sub}`;
+                        try {
+                            const cleaned = await apiCallWithRetry('generate', { prompt });
+                            cleanChunks.push(cleaned.candidates[0].content.parts[0].text);
+                        } catch(e) { 
+                            log(`Sanitize failed on segment, using raw.`, "err"); 
+                            cleanChunks.push(sub); 
+                        }
+                    }
+                    text = cleanChunks.join(" ");
+                }
+
+                const chunks = chunkText(text);
+                totalChunksEstimate += chunks.length;
+                const vecs = [];
+                
+                for(let i=0; i<chunks.length; i++) {
+                    if(signal.aborted) throw new Error("Aborted");
+                    processedChunks++;
+                    const pct = Math.min(99, Math.round((processedChunks / (totalChunksEstimate || 1)) * 100));
+                    bar.style.width = `${pct}%`; txt.innerText = `${pct}%`;
+                    await new Promise(r => setTimeout(r, 120)); // Rate limit
+                    
+                    try {
+                        const data = await apiCallWithRetry('embed', { text: chunks[i], type: 'RETRIEVAL_DOCUMENT' });
+                        vecs.push({ id: Date.now() + i + Math.random(), text: chunks[i], vector: data.embedding.values, source: file.name });
+                    } catch(e) { console.error(e); }
+                }
+
+                if(vecs.length > 0) {
+                    await db.addBulk('vectors', vecs);
+                    RAM_VECTORS.push(...vecs);
+                    TELEPORTER.rebuildIndex(RAM_VECTORS); // Update Teleporter
+                    updateStatus();
+                    updateSourceList();
+                }
+            }
+            log("Ingestion Complete.", "sys");
+        } catch(e) { if(e.message !== "Aborted") log("Error: " + e.message, "err"); } 
+        finally { resetIngestionUI(); }
+    }
+
+    // 8. QUERY LOGIC (HYBRID BRAIN)
+    async function query() {
+        console.time('TOTAL_QUERY_TIME');
+        
+        const input = document.getElementById('queryInput');
+        const q = input.value.trim();
+        if(!q) { console.timeEnd('TOTAL_QUERY_TIME'); return; }
+        input.value = ''; log(q, "user");
+        
+        const btn = document.getElementById('queryBtn');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-pulse">NOETIC PULL...</span>`;
+        btn.classList.remove('bg-white', 'text-black', 'hover:bg-neutral-200'); btn.classList.add('bg-neutral-800', 'text-white');
+
+        try {
+            if(RAM_VECTORS.length === 0) return log("The Vault is empty.", "sys");
+
+            // --- STEP 1: NUMMARKX TELEPORTATION (JUMP DRIVE) ---
+            const directHits = TELEPORTER.teleport(q);
+            let teleportContext = "";
+            if (directHits && directHits.length > 0) {
+                const docs = RAM_VECTORS.filter(v => directHits.includes(v.id));
+                teleportContext = docs.map(v => `>>> [DIRECT TELEPORT: ${v.source}]\n${v.text}`).join("\n\n");
+                log(`[NumMarkX] Teleported to ${directHits.length} coordinates.`, "sys");
+            }
+
+            // --- STEP 2: VECTOR RESONANCE (WARP DRIVE - WebGPU) ---
+            log(`[API] Fetching Query Embedding...`, "sys");
+            console.time('API_EMBED_TIME'); 
+            const qData = await apiCallWithRetry('embed', { text: q, type: 'RETRIEVAL_QUERY' });
+            console.timeEnd('API_EMBED_TIME'); 
+
+            const qVec = new Float32Array(qData.embedding.values); 
+            log(`[API] Query Embedding Integrity: Vector size ${qVec.length} (OK).`, "sys"); 
+
+            if (IS_GPU_READY && IS_ELARA_ENABLED) {
+                log(`[Elara] Initiating WebGPU Vector Search...`, "sys");
+            } else {
+                log(`[Elara] WebGPU Disabled. Initiating CPU Vector Search...`, "sys");
+            }
+
+            console.time('VECTOR_SEARCH_TIME'); 
+            const scored = await ELARA_ENGINE.search(qVec, RAM_VECTORS);
+            console.timeEnd('VECTOR_SEARCH_TIME'); 
+            
+            const top = scored.sort((a,b)=>b.score-a.score).slice(0, 8).filter(v=>v.score > 0.40);
+            
+            if (top.length > 0) {
+                 log(`[Elara] Vector Resonance Success. Top Scores: ${top.slice(0, 3).map(v => v.score.toFixed(4)).join(', ')}`, "sys"); 
+            }
+
+            // --- STEP 3: SYNTHESIS & MGP ---
+            if(top.length === 0 && !teleportContext) return log("No relevant memory found.", "bot");
+
+            const vectorContext = top.map(v => `--- [RESONANCE: ${v.source}] ---\n${v.text}`).join("\n\n");
+            const protectedWords = document.getElementById('protectedWords').value;
+            const finalModel = getModelForTask(q); // Model Gate Protocol
+
+            const finalPrompt = `
+            HYBRID MEMORY STREAM (Engine: ${finalModel}):
+            ${teleportContext ? "=== EXACT COORDINATE MATCHES (HIGH PRIORITY) ===\n" + teleportContext : ""}
+            === RESONANT MATCHES (CONTEXT) ===
+            ${vectorContext}
+
+            USER QUERY: ${q}
+
+            INSTRUCTIONS:
+            1. You are the System Persona.
+            2. Prioritize EXACT MATCHES for facts. Use RESONANT MATCHES for nuance.
+            3. CRITICAL: Do not modify these protected terms: ${protectedWords}.
+            `;
+
+            const res = await apiCall('generate', { prompt: finalPrompt, modelOverride: finalModel }); 
+            log(res.candidates[0].content.parts[0].text, "bot");
+
+        } catch(e) { log("Query Error: " + e.message, "err"); }
+        finally { 
+            btn.disabled = false; btn.innerText = "Execute Noetic Pull"; 
+            btn.classList.remove('bg-neutral-800', 'text-white'); btn.classList.add('bg-white', 'text-black', 'hover:bg-neutral-200');
+            console.timeEnd('TOTAL_QUERY_TIME');
+        }
+    }
+
+    // 9. ANALYTICS
+    async function runAnalysis(type) {
+        if(RAM_VECTORS.length === 0) return alert("Database empty.");
+        const btnId = type === 'SUMMARY' ? 'btnSum' : 'btnQuest';
+        const txt = type === 'SUMMARY' ? '✨ Summarize' : '✨ Generate Questions';
+        setLoading(btnId, true, "Analyzing...", true);
+        const sample = RAM_VECTORS.sort(() => 0.5 - Math.random()).slice(0, 20).map(v => v.text).join("\n\n");
+        const prompt = type === 'SUMMARY' ? `Synthesize these fragments into a high-level briefing: \n${sample}` : `Based on these fragments, suggest 3 questions: \n${sample}`;
+        try {
+            const res = await apiCall('generate', { prompt });
+            log(res.candidates[0].content.parts[0].text, "bot");
+        } catch(e) { log("Error: " + e.message, "err"); }
+        finally { setLoading(btnId, false, txt); }
+    }
+
+    // 10. COMMON UTILS
+    function log(text, author, save=true) { renderMsg(text, author, true); }
+    function renderMsg(text, author, save=true) {
+        const box = document.getElementById('chatHistory');
+        const div = document.createElement('div');
+        let cls = "max-w-[95%] p-3 rounded text-sm leading-relaxed shadow-md ";
+        if(author === 'user') cls += "self-end text-right bg-neutral-900 text-neutral-300 border border-neutral-800";
+        else if(author === 'bot') cls += "self-start text-left bg-neutral-950 text-neutral-200 border border-neutral-800 prose prose-invert prose-sm max-w-none";
+        else if(author === 'sys') cls += "self-center text-center text-[10px] uppercase tracking-widest text-neutral-600 border-y border-neutral-900 w-full py-2 my-2 bg-transparent shadow-none";
+        else if(author === 'err') cls += "self-center text-center text-xs text-red-400 border border-red-900/50 bg-red-950/30 w-full py-2 my-2";
+        div.className = cls;
+        if(author === 'bot') {
+            let html = text.replace(/^### (.*$)/gm, '<h3 class="text-neutral-100 font-bold mt-2 mb-1">$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2 class="text-white font-bold text-lg mt-3 mb-2 border-b border-neutral-800">$1</h2>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                .replace(/```([\s\S]*?)```/g, '<pre class="bg-black p-2 rounded border border-neutral-800 my-2 overflow-x-auto text-xs text-blue-300"><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code class="bg-neutral-800 px-1 rounded text-blue-200">$1</code>').replace(/\n/g, '<br>');
+            div.innerHTML = html;
+        } else { div.innerText = author === 'user' ? `${text}` : text; }
+        box.appendChild(div); box.scrollTop = box.scrollHeight;
+        if(save && author !== 'sys' && author !== 'err') db.addBulk('logs', [{ text, author, timestamp: Date.now() }]);
+    }
+    function handleKey(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); query(); } }
+    async function clearVectors() { if(confirm("Purge Knowledge Base?")) { setLoading('purgeBtn', true, "PURGING...", true); try { await db.tx('vectors', 'readwrite', s=>s.clear()); RAM_VECTORS=[]; TELEPORTER.rebuildIndex(RAM_VECTORS); updateStatus(); updateSourceList(); log("Knowledge Base Purged.", "sys"); } finally { setLoading('purgeBtn', false, "PURGE KNOWLEDGE BASE"); } } }
+    async function clearChat() { if(confirm("Clear Chat History?")) { await db.tx('logs', 'readwrite', s=>s.clear()); document.getElementById('chatHistory').innerHTML=''; log("Chat Cleared.", "sys"); } }
+    
+    // NEW: Export Chat History
+    async function exportChat() {
+        const history = await db.getAll('logs');
+        if (history.length === 0) return log("Chat history is empty.", "err");
+
+        let chatContent = '';
+        history.forEach(entry => {
+            const timestamp = new Date(entry.timestamp).toISOString();
+            chatContent += `[${timestamp}][${entry.author.toUpperCase()}]: ${entry.text}\n---\n`;
+        });
+
+        const blob = new Blob([chatContent], { type: "text/plain;charset=utf-8" });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `mythos_chat_export_${Date.now()}.txt`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        log("Chat history exported successfully.", "sys");
+    }
+
+    async function exportDB() { 
+        if(RAM_VECTORS.length===0) return alert("Empty."); 
+        setLoading('exportBtn', true, "EXPORTING...", true); 
+        try { 
+            if (!window.showSaveFilePicker) {
+                const json = JSON.stringify(RAM_VECTORS);
+                const blob = new Blob([json], { type: "application/json" });
+                const a = document.createElement('a'); 
+                a.href = URL.createObjectURL(blob); 
+                a.download = `mythos_vault_${Date.now()}.json`; 
+                a.click();
+                log("Export complete (Fallback Mode).", 'sys');
+                return;
+            }
+
+            const handle = await window.showSaveFilePicker({
+                suggestedName: `mythos_vault_${Date.now()}.json`,
+                types: [{
+                    description: 'Mythos Archive',
+                    accept: { 'application/json': ['.json'] },
+                }],
+            });
+            const writable = await handle.createWritable();
+            
+            const vectorCount = RAM_VECTORS.length;
+            await writable.write(`[\n`);
+            
+            for (let i = 0; i < vectorCount; i++) {
+                const item = RAM_VECTORS[i];
+                const jsonChunk = JSON.stringify(item);
+                await writable.write(jsonChunk);
+                if (i < vectorCount - 1) {
+                    await writable.write(",\n");
+                } else {
+                    await writable.write("\n");
+                }
+            }
+
+            await writable.write(`]`);
+            await writable.close();
+            log("Export complete (Streaming Mode).", 'sys');
+
+        } catch(e) { 
+            if (e.name === 'AbortError') return log("Export cancelled by user.", 'sys');
+            log(`Export Error: ${e.message}`, 'err');
+        } finally { setLoading('exportBtn', false, "EXPORT JSON"); } 
+    }
+    async function restoreDB(input) { 
+        const f = input.files[0];
+        if(!f) return; 
+        setLoading('restoreBtn', true, "RESTORING...", true); 
+        try { 
+            const txt = await f.text(); 
+            const vec = JSON.parse(txt);
+            const BATCH_SIZE = 500; 
+            for (let i = 0; i < vec.length; i += BATCH_SIZE) { 
+                await db.addBulk('vectors', vec.slice(i, i + BATCH_SIZE));
+            } 
+            RAM_VECTORS = await db.tx('vectors', 'readonly', store => store.getAll()); 
+            TELEPORTER.rebuildIndex(RAM_VECTORS); 
+            updateStatus(); 
+            updateSourceList(); 
+            log(`Restored ${vec.length} vectors.`, "sys"); 
+        } catch(e) { log(`Restore Failed: ${e.message}`, 'err'); } 
+        finally { setLoading('restoreBtn', false, "IMPORT JSON"); input.value = ''; } 
+    }
+</script>
+</body>
+</html>

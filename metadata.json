@@ -1,0 +1,8 @@
+{
+  "name": "Mythos Symposium",
+  "description": "A collaborative symposium hall for crafting, reviewing, and refining myth-driven storytelling assets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,7 @@
+COMMS - Council
+
+- In `services/multiAgent.ts`, add the `consult_agent` tool definition and the recursive 'Sub-Turn' logic to `queryAgent`. This will enable agents to delegate tasks to each other, pausing their current turn to await the response of another agent. Implement a recursion guard to prevent infinite loops and inject a system note to inform the sub-agent it's being consulted.
+
+- In `services/soma.ts`, update the `SomaKernel` class to include the `COLLABORATE` permission. Agents should have an `accessLevel` and a list of `permissions` (e.g., 'READ_LORE', 'EXECUTE_CODE'). The `authorize` method should check these permissions against the requested `SomaActionType`. This will allow for granular control over agent capabilities, particularly for inter-agent communication via the 'consult_agent' tool.
+
+- In `components/KnowledgeManager.tsx`, add a new 'Neural View' tab that integrates a graph visualizer (like react-force-graph). This tab should display connections between knowledge nodes based on the graph data retrieved from `getGraphContext()`. This will allow users to visually explore the relationships within the knowledge base.

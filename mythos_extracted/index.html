@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MYTHOS Console: Dekatríadic Conference Room</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <!-- LEFT COLUMN: Controls & Agent List -->
+    <div class="col">
+      <div class="panel">
+        <h2>MYTHOS LOCUS CONTROL</h2>
+        
+        <div class="panel-header">HITL OPERATOR (YOU)</div>
+        <div style="color: var(--dim-text); font-size: 0.85em; margin-bottom: 10px;">Human Legal Interface</div>
+
+        <div class="input-group">
+          <label>GEMINI API KEY</label>
+          <div class="static-key-message">
+            API Key must be set on the server.<br />
+            Set the <code>GEMINI_API_KEY</code> environment variable.
+          </div>
+        </div>
+      </div>
+
+      <!-- ROOM FOCUS (HITL Control) -->
+      <div class="panel">
+        <h2>ROOM FOCUS</h2>
+        
+        <div class="input-group">
+          <label for="room-focus-select">ACTIVE FOCUS</label>
+          <select id="room-focus-select" disabled></select>
+        </div>
+
+        <div class="input-group">
+          <label for="room-focus-id">FOCUS ID (e.g., WRITERS)</label>
+          <input id="room-focus-id" placeholder="OPEN" disabled />
+        </div>
+
+        <div class="input-group">
+          <label for="room-focus-title">TITLE</label>
+          <input id="room-focus-title" placeholder="Open Discussion" disabled />
+        </div>
+
+        <div class="input-group">
+          <label for="room-focus-summary">SUMMARY</label>
+          <input id="room-focus-summary" placeholder="What are we here to do?" disabled />
+        </div>
+
+        <div class="input-group">
+          <label for="room-focus-rules">RULES (one per line)</label>
+          <textarea id="room-focus-rules" rows="5" placeholder="Be creative and original." disabled></textarea>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button id="room-focus-apply" disabled>APPLY</button>
+          <button id="room-focus-save" disabled>SAVE / UPDATE</button>
+        </div>
+
+        <div style="margin-top:10px; opacity:0.8; font-size:0.85em; color: var(--dim-text);">
+          Tip: Create <b>WRITERS</b>, Save, then Apply.
+        </div>
+      </div>
+
+      <!-- Agent roster -->
+      <div class="panel" style="flex-grow: 1;">
+        <div class="panel-header">DEKATRÍADIC CLUSTER</div>
+
+        <div id="agent-list" style="flex-grow: 1; overflow-y: auto; background: #000; padding: 10px; border: 1px solid #1a1a1a;">
+          <div class="msg sys">Connecting to Hypervisor...</div>
+        </div>
+
+        <div style="margin-top: 10px; padding: 8px; background: var(--panel-bg); border: 1px solid #222; text-align: center; font-size: 0.85em; color: var(--dim-text);">
+          Storage: <span id="storage-size" style="color: var(--main-color); font-weight: bold;">0.00</span> MB / ~5 MB
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Chat Area -->
+    <div class="col" style="flex-grow: 1;">
+      <div class="panel" style="flex-grow: 1; display: flex; flex-direction: column; min-height: 0;">
+        <div class="panel-header">
+          MYTHOS CONFERENCE ROOM
+          <span style="font-size: 0.8em; opacity: 0.7; font-weight: normal;">(Text Stream Only)</span>
+        </div>
+
+        <div id="messages-container"></div>
+
+        <div id="queryArea">
+          <textarea
+            id="message-input"
+            placeholder="Enter message to broadcast to the Dekatríadic Cluster..."
+            rows="2"
+            disabled
+          ></textarea>
+          <button id="send-button" disabled>BROADCAST</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANONICAL LOAD ORDER -->
+  <script type="module" src="js/comms/renderer.js"></script>
+
+  <!-- RoomFocus (registry + UI wiring) -->
+  <script type="module" src="js/comms/room-focus.js"></script>
+  <script type="module" src="js/comms/room-focus-ui.js"></script>
+
+  <!-- Agent Runtime (must load before init-mythos) -->
+  <script type="module" src="js/agents/agent-runtime.js"></script>
+
+  <!-- Room + boot -->
+  <script type="module" src="js/comms/conference.js"></script>
+  <script type="module" src="js/core/init-mythos.js"></script>
+  <script type="module" src="js/boot/mythos-loader.js"></script>
+</body>
+</html>

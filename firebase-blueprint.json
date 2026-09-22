@@ -1,0 +1,83 @@
+{
+  "entities": {
+    "Lorepack": {
+      "title": "Lorepack",
+      "description": "A structured mythological lorepack manuscript and metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["Draft", "Review", "Complete"] },
+        "manuscript": { "type": "string", "maxLength": 200000 },
+        "author": { "type": "string", "maxLength": 100 },
+        "authorId": { "type": "string", "maxLength": 128 },
+        "lastModified": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "category", "status"]
+    },
+    "Revision": {
+      "title": "Revision",
+      "description": "A timestamped version snapshot of a lorepack manuscript",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 100 },
+        "content": { "type": "string", "maxLength": 200000 },
+        "author": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "timestamp", "content"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A collaborative review note on a lorepack",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "author": { "type": "string", "maxLength": 100 },
+        "time": { "type": "string", "maxLength": 100 },
+        "content": { "type": "string", "maxLength": 5000 }
+      },
+      "required": ["id", "author", "content"]
+    },
+    "CouncilFeedback": {
+      "title": "CouncilFeedback",
+      "description": "Contrasting theological critique and patch from a summoned mythos agent",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "agentId": { "type": "string", "maxLength": 64 },
+        "agentHandle": { "type": "string", "maxLength": 64 },
+        "agentRole": { "type": "string", "maxLength": 200 },
+        "stanceTitle": { "type": "string", "maxLength": 200 },
+        "tone": { "type": "string", "maxLength": 200 },
+        "alignmentScore": { "type": "number" },
+        "critique": { "type": "string", "maxLength": 5000 },
+        "contrastPoint": { "type": "string", "maxLength": 2000 },
+        "proposedPatch": { "type": "string", "maxLength": 5000 },
+        "timestamp": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "agentId", "agentHandle", "stanceTitle", "critique"]
+    }
+  },
+  "firestore": {
+    "/lorepacks/{lorepackId}": {
+      "schema": "Lorepack",
+      "description": "Lorepacks collection storing manuscripts and metadata."
+    },
+    "/lorepacks/{lorepackId}/revisions/{revisionId}": {
+      "schema": "Revision",
+      "description": "Manuscript version history snapshots."
+    },
+    "/lorepacks/{lorepackId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Collaborative discussion comments on a lorepack."
+    },
+    "/lorepacks/{lorepackId}/council/{feedbackId}": {
+      "schema": "CouncilFeedback",
+      "description": "Summoned council feedback and dialectic critiques."
+    }
+  }
+}

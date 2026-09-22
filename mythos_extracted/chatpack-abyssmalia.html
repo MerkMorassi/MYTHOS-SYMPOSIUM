@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>MYTHOS :: LorePack Ingestion</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <main class="panel">
+        <h1>LOREPACK INGESTION v3.4</h1>
+
+        <div class="d-flex gap-10">
+            <div class="input-group" style="flex: 2;">
+                <label for="agentId">Agent ID (Locus)</label>
+                <input id="agentId" placeholder="POLYHYMNIA">
+            </div>
+            <div class="input-group" style="flex: 2;">
+                <label for="agentHandle">Agent Handle</label>
+                <input id="agentHandle" placeholder="@polyhymnia">
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label for="concurrency">Threads</label>
+                <input id="concurrency" type="number" value="3" min="1" max="20">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="apiKey">Gemini API Keys (One per line)</label>
+            <textarea id="apiKey" rows="3" placeholder="AIza..."></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>Source Files</label>
+            <label id="fileInputLabel" for="fileInput" class="file-btn">+ Choose Files</label>
+            <input id="fileInput" type="file" multiple accept=".txt,.md,.json">
+        </div>
+
+        <div class="action-row">
+            <button id="ingestBtn">START INGESTION</button>
+            <button id="importBtn">VERIFY JSON</button>
+            <button id="exportBtn">EXPORT PACK</button>
+            <button id="syncBtn">SYNC TO SERVER</button>
+            <button id="abortBtn" class="d-none">ABORT</button>
+        </div>
+
+        <input id="importFile" type="file" accept=".json" class="none d-none">
+        <progress id="progressBar" value="0" max="100"></progress>
+        <div id="progressLabel">0%</div>
+
+        <div id="statsBox" class="stats-dashboard d-none">
+            <div class="stat-item"><span class="stat-label">ELAPSED</span><span id="timerDisplay" class="stat-value active">00:00</span></div>
+            <div class="stat-item"><span class="stat-label">THREADS</span><span id="statThreads" class="stat-value">0</span></div>
+            <div class="stat-item"><span class="stat-label">CHUNKS</span><span id="statChunks" class="stat-value">0</span></div>
+            <div class="stat-item"><span class="stat-label">VECTORS</span><span id="statVectors" class="stat-value">0</span></div>
+            <div class="stat-item"><span class="stat-label">SPEED</span><span id="statSpeed" class="stat-value">0/s</span></div>
+            <div class="stat-item"><span class="stat-label">ETA</span><span id="statETA" class="stat-value">--:--</span></div>
+        </div>
+        
+        <div id="msgBox" class="msg sys">Hypervisor Active on Port 4000.</div>
+
+        <div id="queuePanel" class="d-none">
+            <div class="queue-header"><span>Staged Files</span><button id="clearQueueBtn" class="mini-btn">Clear All</button></div>
+            <ul id="fileList"></ul>
+        </div>
+    </main>
+
+    <script type="module" src="js/core/mythos-db.js"></script>
+    <script type="module" src="js/ingestion/lorepack.js"></script>
+<script type="module">
+import { SimpleDB } from './js/mythos-db.js';
+import { normalize, VectorEngine, apiCall } from './js/core.js';
+import { RetrievalGate } from './js/retrieval-gate.js';
+
+const vault = new SimpleDB('mythos_vault');
+
+window.initiateNoeticResonance = async () => {
+    console.log("🌀 CHATPACK: Linking to the Belted Oblissos...");
+    await vault.ready;
+    
+    // Seat the entire lattice in RAM for O(0) performance
+    window.RAM_VECTORS = await vault.tx('vectors', 'readonly', s => s.getAll());
+    console.log(`✨ RESONANCE ACTIVE: ${window.RAM_VECTORS.length} nodes seated.`);
+    
+    // Update the UI Vector Stat [cite: 2025-12-30]
+    const statVectors = document.getElementById('statVectors');
+    if (statVectors) statVectors.textContent = window.RAM_VECTORS.length;
+};
+
+// Hook into the sending ritual
+window.sendMessage = async (text) => {
+    const gate = RetrievalGate.evaluate(text, window.currentAgent);
+    console.log(`🛡️ GATE: ${gate.reason} (Retrieve: ${gate.shouldRetrieve})`);
+    
+    let context = "";
+    if (gate.shouldRetrieve && window.RAM_VECTORS.length > 0) {
+        // 1. Vectorize the User Query
+        const apiKey = localStorage.getItem('mythos_api_key');
+        const qData = await apiCall('embed', { text, taskType: 'RETRIEVAL_QUERY' }, apiKey);
+        
+        // 2. Normalize for High-Velocity Search
+        const qVec = normalize(qData.embedding.values);
+        
+        // 3. Extract Sacred Pearls from the Oblissos
+        const matches = VectorEngine.search(qVec, window.RAM_VECTORS, 5);
+        context = matches.map(m => `[LORE]: ${m.text}`).join("\n\n");
+    }
+    
+    // 4. Pass the enriched prompt to the original sender
+    const enrichedPrompt = context ? `CONTEXT:\n${context}\n\nUSER: ${text}` : text;
+    return window.originalSendMessage(enrichedPrompt); 
+};
+
+window.addEventListener('DOMContentLoaded', window.initiateNoeticResonance);
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYTHOS // LIA CONFERENCE ROOM</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="nav-bar">
+    <div class="nav-logo">MYTHOS LIA CONSOLE</div>
+    <a href="manager.html" class="nav-link">Manager Locus (DB: 4000-4015)</a>
+    <a href="chat-room.html" class="nav-link active">Conference Room (API: 4100)</a>
+    <a href="manifest.html" class="nav-link">Canonical Manifest</a>
+</div>
+<div class="layout">
+    
+    <div class="sidebar">
+        <h2>LIA Operator Console</h2>
+        
+        <div class="hitl-operator-display">
+            <div class="panel-header">HITL OPERATOR</div>
+            <p>Patrikios Demetri (MERKOS)</p>
+        </div>
+
+        <div class="api-config">
+            <div class="panel-header">API CONFIG</div>
+            <div class="input-group">
+                <label for="apiKey">GEMINI API KEY</label>
+                <input type="password" id="apiKey" value="" placeholder="Enter Gemini API Key"> 
+            </div>
+            <p>Server Port: 4100 (Node.js)</p>
+        </div>
+
+        <div class="agents-section">
+            <div class="panel-header">ACTIVE AGENT MANIFEST</div>
+            <div id="agent-list" class="agent-list-container">
+                <div class="agent-item selected">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-area">
+        <div id="commOutput" class="comm-output">
+            <div class="chat-info">System: **Genesis Comm Protocol Initialized.** Please select an agent from the Manifest to begin the session.</div>
+        </div>
+
+        <div class="input-area">
+            <textarea id="promptInput" placeholder="Enter command or query..." rows="2"></textarea>
+            <button id="sendBtn" class="primary" disabled>SEND</button>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="js/mythos-db.js"></script> 
+<script type="module" src="js/core.js"></script> 
+<script type="module" src="js/chatpack-multi.js"></script> 
+<script type="module" src="js/chat-room.js"></script> 
+
+</body>
+</html>

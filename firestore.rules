@@ -1,0 +1,104 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidLorepack(data) {
+      return data.keys().hasAll(['id', 'title', 'category', 'status'])
+        && data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 200
+        && data.category is string && data.category.size() <= 100
+        && data.status in ['Draft', 'Review', 'Complete']
+        && (!('manuscript' in data) || (data.manuscript is string && data.manuscript.size() <= 200000))
+        && (!('author' in data) || (data.author is string && data.author.size() <= 100))
+        && (!('authorId' in data) || (data.authorId is string && data.authorId.size() <= 128))
+        && (!('lastModified' in data) || (data.lastModified is string && data.lastModified.size() <= 100))
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 100))
+        && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100));
+    }
+
+    function isValidRevision(data) {
+      return data.keys().hasAll(['id', 'timestamp', 'content'])
+        && data.id is string && data.id.size() <= 128
+        && data.timestamp is string && data.timestamp.size() <= 100
+        && data.content is string && data.content.size() <= 200000
+        && (!('author' in data) || (data.author is string && data.author.size() <= 100));
+    }
+
+    function isValidComment(data) {
+      return data.keys().hasAll(['id', 'author', 'content'])
+        && data.id is string && data.id.size() <= 128
+        && data.author is string && data.author.size() <= 100
+        && data.content is string && data.content.size() <= 5000
+        && (!('time' in data) || (data.time is string && data.time.size() <= 100));
+    }
+
+    function isValidCouncilFeedback(data) {
+      return data.keys().hasAll(['id', 'agentId', 'agentHandle', 'stanceTitle', 'critique'])
+        && data.id is string && data.id.size() <= 128
+        && data.agentId is string && data.agentId.size() <= 64
+        && data.agentHandle is string && data.agentHandle.size() <= 64
+        && data.stanceTitle is string && data.stanceTitle.size() <= 200
+        && data.critique is string && data.critique.size() <= 5000
+        && (!('agentRole' in data) || (data.agentRole is string && data.agentRole.size() <= 200))
+        && (!('tone' in data) || (data.tone is string && data.tone.size() <= 200))
+        && (!('alignmentScore' in data) || (data.alignmentScore is number))
+        && (!('contrastPoint' in data) || (data.contrastPoint is string && data.contrastPoint.size() <= 2000))
+        && (!('proposedPatch' in data) || (data.proposedPatch is string && data.proposedPatch.size() <= 5000))
+        && (!('timestamp' in data) || (data.timestamp is string && data.timestamp.size() <= 100));
+    }
+
+    // Lorepacks
+    match /lorepacks/{lorepackId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() 
+        && isValidId(lorepackId) 
+        && isValidLorepack(request.resource.data);
+      allow update: if isSignedIn() 
+        && isValidId(lorepackId) 
+        && isValidLorepack(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(lorepackId);
+
+      // Revisions subcollection
+      match /revisions/{revisionId} {
+        allow get, list: if true;
+        allow create, update: if isSignedIn()
+          && isValidId(lorepackId)
+          && isValidId(revisionId)
+          && isValidRevision(request.resource.data);
+        allow delete: if isSignedIn() && isValidId(lorepackId) && isValidId(revisionId);
+      }
+
+      // Comments subcollection
+      match /comments/{commentId} {
+        allow get, list: if true;
+        allow create, update: if isSignedIn()
+          && isValidId(lorepackId)
+          && isValidId(commentId)
+          && isValidComment(request.resource.data);
+        allow delete: if isSignedIn() && isValidId(lorepackId) && isValidId(commentId);
+      }
+
+      // Council feedback subcollection
+      match /council/{feedbackId} {
+        allow get, list: if true;
+        allow create, update: if isSignedIn()
+          && isValidId(lorepackId)
+          && isValidId(feedbackId)
+          && isValidCouncilFeedback(request.resource.data);
+        allow delete: if isSignedIn() && isValidId(lorepackId) && isValidId(feedbackId);
+      }
+    }
+  }
+}
