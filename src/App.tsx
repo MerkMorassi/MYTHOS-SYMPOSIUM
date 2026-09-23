@@ -19,18 +19,20 @@ import {
   Clock,
   Compass,
   ArrowRight,
-  BookMarked
+  BookMarked,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User } from 'firebase/auth';
 import { AGENTS, Agent } from './lib/agents';
 import { SymposiumHallView } from './views/SymposiumHallView';
+import { TriadicSynthesizerView } from './views/TriadicSynthesizerView';
 import { 
   LorepackDoc, 
   subscribeLorepacks, 
   loginWithGoogle, 
   logoutUser, 
-  subscribeToAuth,
+  subscribeToAuth, 
   INITIAL_MOCK_LOREPACKS 
 } from './lib/firestore-service';
 
@@ -78,7 +80,7 @@ function saveSettings(settings: FactorySettings) {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'gallery' | 'reader'>('gallery');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'reader' | 'synthesizer'>('gallery');
   const [selectedLorepack, setSelectedLorepack] = useState<LorepackDoc | null>(INITIAL_MOCK_LOREPACKS[0]);
   const [selectedAgent, setSelectedAgent] = useState<Agent>(AGENTS[0]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -207,6 +209,12 @@ export default function App() {
                 }
                 setActiveTab('reader');
               }} 
+            />
+            <NavItem 
+              icon={<Layers className="w-4 h-4" />} 
+              label="Triadic Synthesizer" 
+              active={activeTab === 'synthesizer'} 
+              onClick={() => { setActiveTab('synthesizer'); }} 
             />
           </div>
 
@@ -342,6 +350,19 @@ export default function App() {
             )}
 
             <button
+              onClick={() => setActiveTab('synthesizer')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'synthesizer'
+                  ? 'bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-sm'
+                  : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-amber-400 hover:border-amber-500/40'
+              }`}
+              title="Hermeneutic Synthesis: Artifacts · Genetics · Memetics"
+            >
+              <Layers className="w-3.5 h-3.5 text-amber-500" />
+              <span>Triadic Synthesis</span>
+            </button>
+
+            <button
               onClick={() => setIsSettingsOpen(true)}
               title="Reader Settings"
               aria-label="Open Settings"
@@ -427,7 +448,7 @@ export default function App() {
                   </div>
                 )}
               </motion.div>
-            ) : (
+            ) : activeTab === 'reader' ? (
               <motion.div 
                 key="reader"
                 initial={{ opacity: 0, y: 10 }}
@@ -441,6 +462,10 @@ export default function App() {
                     agent={selectedAgent}
                     settings={settings}
                     onBack={() => { setActiveTab('gallery'); }} 
+                    onOpenSynthesizer={(p) => {
+                      if (p) setSelectedLorepack(p);
+                      setActiveTab('synthesizer');
+                    }}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
@@ -457,6 +482,23 @@ export default function App() {
                     </button>
                   </div>
                 )}
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="synthesizer"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="h-full"
+              >
+                <TriadicSynthesizerView 
+                  lorepacks={lorepacks}
+                  settings={settings}
+                  onOpenCodex={(pack) => {
+                    setSelectedLorepack(pack);
+                    setActiveTab('reader');
+                  }}
+                />
               </motion.div>
             )}
           </AnimatePresence>
